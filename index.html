@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>臺灣銀行二職等【工友】歷屆試題隨機測驗系統</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 min-h-screen text-slate-800 p-3 sm:p-6">
+  <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200">
+    
+    <header class="bg-blue-900 text-white p-6 text-center">
+      <h1 class="text-2xl sm:text-3xl font-extrabold mb-2">臺灣銀行二職等【工友】隨機測驗系統</h1>
+      <p class="text-blue-200 text-sm sm:text-base">含【國文】與【綜合科目：金融常識與基本電腦常識】</p>
+    </header>
+
+    <div class="p-4 sm:p-8">
+      <!-- 畫面 1: 設定與開始畫面 -->
+      <div id="setup-screen" class="space-y-6">
+        <div class="bg-blue-50 border border-blue-200 rounded-xl p-5">
+          <h2 class="font-bold text-lg text-blue-950 mb-3">1. 選擇測驗科目：</h2>
+          <select id="category-select" class="w-full p-3 border border-slate-300 rounded-lg bg-white font-medium">
+            <option value="all">全科混合測驗（國文 + 金融常識 + 電腦常識）</option>
+            <option value="chinese">科目一：國文</option>
+            <option value="general">科目二：綜合科目（金融常識 + 基本電腦常識）</option>
+          </select>
+        </div>
+
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-5">
+          <h2 class="font-bold text-lg text-slate-900 mb-3">2. 選擇練習題數：</h2>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <button onclick="startExam(5)" class="py-3 px-4 bg-white border-2 border-blue-600 text-blue-700 font-bold rounded-lg hover:bg-blue-600 hover:text-white transition">5 題 (快速)</button>
+            <button onclick="startExam(10)" class="py-3 px-4 bg-white border-2 border-blue-600 text-blue-700 font-bold rounded-lg hover:bg-blue-600 hover:text-white transition">10 題 (標準)</button>
+            <button onclick="startExam(20)" class="py-3 px-4 bg-white border-2 border-blue-600 text-blue-700 font-bold rounded-lg hover:bg-blue-600 hover:text-white transition">20 題 (強化)</button>
+            <button onclick="startExam(0)" class="py-3 px-4 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition">全部題目</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 畫面 2: 測驗區域 -->
+      <div id="exam-screen" class="hidden">
+        <div class="flex justify-between items-center mb-6 pb-3 border-b border-slate-200">
+          <div id="exam-progress" class="font-bold text-lg text-blue-900">題目 1 / 10</div>
+          <button onclick="submitExam()" class="px-5 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 font-bold">提交考卷</button>
+        </div>
+
+        <div id="questions-container" class="space-y-6"></div>
+
+        <div class="mt-8 pt-4 border-t border-slate-200 text-center">
+          <button onclick="submitExam()" class="w-full sm:w-auto px-10 py-3 bg-emerald-600 text-white font-bold text-lg rounded-xl hover:bg-emerald-700 shadow-lg">完成並提交考卷</button>
+        </div>
+      </div>
+
+      <!-- 畫面 3: 結果與解析區域 -->
+      <div id="result-screen" class="hidden">
+        <div class="text-center p-6 bg-slate-50 border border-slate-200 rounded-2xl mb-8">
+          <h2 class="text-xl font-bold text-slate-700 mb-2">測驗結算報告</h2>
+          <div class="text-5xl font-black text-blue-600 my-3" id="score-display">0 分</div>
+          <p id="accuracy-display" class="text-slate-600 font-medium">答對 0 題 / 共 0 題 (0%)</p>
+        </div>
+
+        <h3 class="text-xl font-bold text-slate-900 mb-4 pb-2 border-b">📋 題目解析與對答案</h3>
+        <div id="review-container" class="space-y-6 mb-8"></div>
+
+        <div class="text-center">
+          <button onclick="resetExam()" class="w-full sm:w-auto px-10 py-3 bg-blue-600 text-white font-bold text-lg rounded-xl hover:bg-blue-700">重新開始測驗</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const rawQuestionBank = [
+      { id: 1, category: "chinese", q: "下列選項「」中的字，何者字音完全相同？", options: ["A. 「匱」乏／「劄」記", "B. 膾「炙」人口／「炙」手可熱", "C. 破「綻」／「靛」青", "D. 挑「剔」／「惕」勵"], ans: "B", detail: "【解析】(A) ㄍㄨㄟˋ／ㄓㄚˊ；(B) 均唸 ㄓˋ；(C) ㄓㄢˋ／ㄉㄧㄢˋ；(D) ㄊㄧ／ㄊㄧˋ。" },
+      { id: 2, category: "chinese", q: "「一暴十寒」的意思最接近下列何者？", options: ["A. 功虧一匱", "B. 徒勞無功", "C. 作輟無常", "D. 堅忍不拔"], ans: "C", detail: "【解析】「一暴十寒」比喻學習或工作缺乏恆心，做做停停。" },
+      { id: 3, category: "chinese", q: "下列詞語何者沒有錯別字？", options: ["A. 滄海一粟", "B. 再接再厲", "C. 美輪美奐", "D. 以上皆無錯別字"], ans: "D", detail: "【解析】選項皆正確無錯字。" },
+      { id: 4, category: "chinese", q: "公文用語中，對於不相隸屬之平行機關，應使用下列何種稱謂語？", options: ["A. 鈞局", "B. 貴局", "C. 大局", "D. 敝局"], ans: "B", detail: "【解析】平行機關稱「貴」；對上級稱「鈞」；對下級稱「貴」。" },
+      { id: 5, category: "chinese", q: "「杞人憂天」的意思為何？", options: ["A. 缺乏遠慮", "B. 不必要的擔憂", "C. 準備充分", "D. 勤勞節儉"], ans: "B", detail: "【解析】比喻缺乏根據或不必要的憂慮。" },
+      { id: 6, category: "general", q: "依我國現行規定，關於新臺幣發行機構之敘述，下列何者正確？", options: ["A. 臺灣銀行", "B. 中華郵政", "C. 中央銀行", "D. 財政部"], ans: "C", detail: "【解析】我國法定貨幣為新臺幣，發行機構為中央銀行。" },
+      { id: 7, category: "general", q: "下列何者非屬電腦常見之輸入設備？", options: ["A. 鍵盤", "B. 滑鼠", "C. 印表機", "D. 條碼掃瞄器"], ans: "C", detail: "【解析】印表機屬於「輸出設備」。" },
+      { id: 8, category: "general", q: "在 Windows 作業系統中，若要複製選取的檔案或文字，快速鍵為何？", options: ["A. Ctrl + X", "B. Ctrl + C", "C. Ctrl + V", "D. Ctrl + Z"], ans: "B", detail: "【解析】Ctrl+C 為複製，Ctrl+X 為剪切，Ctrl+V 為貼上。" },
+      { id: 9, category: "general", q: "銀行提供客戶存入款項，並可隨時開立支票提取的存款類型稱為？", options: ["A. 定期存款", "B. 支票存款", "C. 儲蓄存款", "D. 外匯存款"], ans: "B", detail: "【解析】支票存款專供開立支票與結算使用。" },
+      { id: 10, category: "general", q: "金融機構提款機（ATM）跨行提款，目前我國單筆提款上限通常規定為新臺幣多少元？", options: ["A. 1 萬元", "B. 2 萬元", "C. 3 萬元", "D. 5 萬元"], ans: "B", detail: "【解析】一般 ATM 跨行提款單筆上限多為新臺幣 2 萬元。" }
+    ];
+
+    let currentQuestions = [];
+    let userAnswers = {};
+
+    function startExam(count) {
+      const category = document.getElementById('category-select').value;
+      let filtered = category === 'all' ? [...rawQuestionBank] : rawQuestionBank.filter(q => q.category === category);
+      filtered.sort(() => Math.random() - 0.5);
+      const targetCount = (count === 0 || count > filtered.length) ? filtered.length : count;
+      currentQuestions = filtered.slice(0, targetCount);
+      userAnswers = {};
+
+      document.getElementById('setup-screen').classList.add('hidden');
+      document.getElementById('result-screen').classList.add('hidden');
+      document.getElementById('exam-screen').classList.remove('hidden');
+      renderQuestions();
+    }
+
+    function renderQuestions() {
+      const container = document.getElementById('questions-container');
+      container.innerHTML = '';
+      document.getElementById('exam-progress').innerText = `共 ${currentQuestions.length} 題`;
+
+      currentQuestions.forEach((q, index) => {
+        const card = document.createElement('div');
+        card.className = "p-5 bg-slate-50 border border-slate-200 rounded-xl shadow-sm";
+        let optionsHtml = q.options.map(opt => {
+          const optLetter = opt.substring(0, 1);
+          return `
+            <label class="flex items-center space-x-3 p-3 bg-white rounded-lg border border-slate-200 cursor-pointer hover:bg-blue-50">
+              <input type="radio" name="question_${q.id}" value="${optLetter}" onchange="recordAnswer(${q.id}, '${optLetter}')" class="w-5 h-5 text-blue-600">
+              <span class="text-slate-800 font-medium">${opt}</span>
+            </label>
+          `;
+        }).join('');
+
+        card.innerHTML = `<div class="font-bold text-slate-900 mb-4">${index + 1}. ${q.q}</div><div class="grid grid-cols-1 gap-2">${optionsHtml}</div>`;
+        container.appendChild(card);
+      });
+    }
+
+    function recordAnswer(qId, val) { userAnswers[qId] = val; }
+
+    function submitExam() {
+      let correctCount = 0;
+      const reviewContainer = document.getElementById('review-container');
+      reviewContainer.innerHTML = '';
+
+      currentQuestions.forEach((q, index) => {
+        const userAns = userAnswers[q.id] || "未作答";
+        const isCorrect = userAns === q.ans;
+        if (isCorrect) correctCount++;
+
+        const reviewCard = document.createElement('div');
+        reviewCard.className = `p-5 rounded-xl border ${isCorrect ? 'bg-emerald-50 border-emerald-300' : 'bg-rose-50 border-rose-300'}`;
+        reviewCard.innerHTML = `
+          <div class="font-bold text-slate-900 mb-2">${index + 1}. ${q.q}</div>
+          <div class="text-sm font-semibold mb-2">您的答案：${userAns} | 正確答案：${q.ans}</div>
+          <div class="text-sm text-slate-700 bg-white p-3 rounded-lg border">${q.detail}</div>
+        `;
+        reviewContainer.appendChild(reviewCard);
+      });
+
+      const score = Math.round((correctCount / currentQuestions.length) * 100);
+      document.getElementById('score-display').innerText = `${score} 分`;
+      document.getElementById('accuracy-display').innerText = `答對 ${correctCount} 題 / 共 ${currentQuestions.length} 題 (${score}%)`;
+
+      document.getElementById('exam-screen').classList.add('hidden');
+      document.getElementById('result-screen').classList.remove('hidden');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function resetExam() {
+      document.getElementById('result-screen').classList.add('hidden');
+      document.getElementById('setup-screen').classList.remove('hidden');
+    }
+  </script>
+</body>
+</html>
